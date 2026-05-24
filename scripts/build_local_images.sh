@@ -6,7 +6,7 @@ make_role_tar() {
   local role="$1"
   local work
   work="$(mktemp -d)"
-  rsync -a --exclude='home_tar/' --exclude='sys_tar/' --exclude='*.tar.gz' --exclude='input_video.mp4' "$ROOT/$role/" "$work/"
+  rsync -a --exclude='home_tar/' --exclude='sys_tar/' --exclude='*.tar.gz' "$ROOT/$role/" "$work/"
   mkdir -p "$work/.local/config" "$work/.local/bin" "$work/.local/result"
   cp "$ROOT/config/"* "$work/.local/config/" 2>/dev/null || true
   if [ -f "$ROOT/$role/prestop" ]; then cp "$ROOT/$role/prestop" "$work/.local/bin/prestop"; chmod +x "$work/.local/bin/prestop"; fi
@@ -18,7 +18,17 @@ make_role_tar() {
   mkdir -p "$ROOT/$role/home_tar"
   list_file="$ROOT/config/${role}-home_tar.list"
   if [ -f "$list_file" ]; then
-    tar -cf "$ROOT/$role/home_tar/home.tar" -C "$ROOT/$role" $(grep -v '^input_video.mp4$' "$list_file" || true)
+    include_file="$(mktemp)"
+    while IFS= read -r item; do
+      [ -z "$item" ] && continue
+      [ -e "$ROOT/$role/$item" ] && echo "$item" >> "$include_file"
+    done < "$list_file"
+    if [ -s "$include_file" ]; then
+      tar -cf "$ROOT/$role/home_tar/home.tar" -C "$ROOT/$role" -T "$include_file"
+    else
+      tar -cf "$ROOT/$role/home_tar/home.tar" --files-from /dev/null
+    fi
+    rm -f "$include_file"
   else
     tar -cf "$ROOT/$role/home_tar/home.tar" --files-from /dev/null
   fi

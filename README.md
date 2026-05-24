@@ -10,6 +10,42 @@ KHOA ATTT PTIT
 
 This public repository intentionally does **not** include the original `sender/input_video.mp4`. If no input video is present, `sender/prepare_input.py` generates a deterministic 5-second `ffmpeg testsrc2` video so the lab can run independently.
 
+
+## Install Directly With `imodule`
+
+On a Labtainer VM:
+
+```bash
+imodule https://raw.githubusercontent.com/ThangNQ-Closer/vp9-real-transform-adaptive-stego/main/imodule/vp9-real-transform-adaptive-stego.tar
+labtainer vp9-real-transform-adaptive-stego
+```
+
+The imodule start config uses DockerHub registry `closer031004`, so Labtainer can pull these images directly:
+
+```text
+closer031004/vp9-real-transform-adaptive-stego.sender.student:latest
+closer031004/vp9-real-transform-adaptive-stego.receiver.student:latest
+```
+
+## Using Your Own Real MP4 Instead Of The Demo Fallback
+
+This public repository does not ship the original media file. To run the lab with a real MP4 on another machine, place it as `sender/input_video.mp4` and rebuild local images:
+
+```bash
+cd ~/labtainer/trunk/labs/vp9-real-transform-adaptive-stego
+./scripts/add_input_video_and_rebuild.sh /path/to/input_video.mp4
+labtainer vp9-real-transform-adaptive-stego
+```
+
+To distribute a private imodule that includes your MP4:
+
+```bash
+./scripts/make_private_video_imodule.sh /path/to/input_video.mp4 /tmp/vp9-real-transform-adaptive-stego-with-video.tar
+imodule file:///tmp/vp9-real-transform-adaptive-stego-with-video.tar
+cd ~/labtainer/trunk/labs/vp9-real-transform-adaptive-stego
+./scripts/build_local_images.sh
+```
+
 ## Quick Start With DockerHub Images
 
 From a Labtainer VM, copy or clone this lab into:
