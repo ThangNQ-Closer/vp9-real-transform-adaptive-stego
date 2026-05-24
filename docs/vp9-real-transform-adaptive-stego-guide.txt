@@ -1,0 +1,70 @@
+Real VP9 Transform-Domain Adaptive Steganography using patched libvpx
+Lab name: vp9-real-transform-adaptive-stego
+
+Scenario
+A research group is validating whether a defensive steganography technique can
+modify real VP9 quantized transform coefficients without breaking the bitstream.
+This lab intentionally avoids CSV-only simulation, pixel LSB embedding, DCT
+simulation outside the codec, network exfiltration, and malicious payloads.
+
+Required workflow
+Task 1: In sender, prepare the cover Y4M video:
+  python3 prepare_input.py
+
+Task 2: Build libvpx:
+  ./build_libvpx.sh
+
+Task 3: Encode a normal VP9 cover:
+  ./encode_cover.sh
+
+Task 4: Patch libvpx:
+  python3 patch_libvpx.py
+
+Task 5: Rebuild patched vpxenc:
+  ./build_libvpx.sh
+
+Task 6: Prove qcoeff visibility without modification:
+  ./encode_logonly.sh
+
+Task 7: Embed the defensive payload into real VP9 qcoeff values:
+  ./encode_stego.sh
+
+Task 8: Inspect the embed log:
+  python3 inspect_embed_log.py --input embed_log.json
+
+Task 9: In receiver, inspect and verify the bitstreams:
+  python3 inspect_video.py /shared/stego.ivf
+  python3 verify_stego.py --cover /shared/cover.ivf --stego /shared/stego.ivf --embed-log /shared/embed_log.json --output verify_report.json
+  python3 extract_metrics.py --report verify_report.json
+
+Task 10: Run checkwork.
+
+Patch strategy
+The patch is inserted in libvpx at vp9/encoder/vp9_tokenize.c. At that point
+transform and quantization have already produced qcoeff and eob, and token
+emission has not yet encoded coefficients into the VP9 bitstream. The hook
+reads environment variables:
+  VP9_STEGO_MODE=off|log|embed
+  VP9_STEGO_MESSAGE=secret.txt
+  VP9_STEGO_LOG=embed_log.json
+  VP9_STEGO_COEFF_LOG=coeff_log.json
+  VP9_STEGO_THRESHOLD=3
+
+Adaptive embedding rule
+The payload is KHOA ATTT PTIT with a 32-bit big-endian length
+header. The encoder chooses only AC indices 3..9, ignores DC, ignores zeros,
+and requires abs(qcoeff) >= threshold. If parity does not match the next bit,
+it decreases magnitude by one in the sign direction. It never turns zero into
+nonzero and never turns nonzero into zero.
+
+Expected forensic evidence
+embed_log.json should show embedded_bits > 0, modified_coeffs > 0,
+dc_modified == 0, zero_to_nonzero == 0, and nonzero_to_zero == 0.
+coeff_log.json should show real qcoeff/eob metadata seen in log-only mode.
+verify_report.json should show both videos decode, PSNR/SSIM metrics, and
+cover/stego bitstreams differ.
+
+If libvpx source cannot be cloned inside the container, the instructor should
+place official libvpx source at sender/libvpx before building the container
+or before students run ./build_libvpx.sh. The lab remains real VP9; do not
+replace Phase 2 or Phase 3 with CSV simulation.

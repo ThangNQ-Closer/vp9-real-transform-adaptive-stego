@@ -1,0 +1,31 @@
+# Labtainer Dockerfile for vp9-real-transform-adaptive-stego receiver
+ARG registry=labtainers
+FROM $registry/labtainer.base2
+ARG lab=vp9-real-transform-adaptive-stego
+ARG labdir=.
+ARG imagedir=receiver
+ARG user_name=student
+ARG password=password123
+ARG apt_source
+ARG version=1
+ARG base=labtainers/labtainer.base2
+LABEL version=$version
+LABEL base=$base
+LABEL lab_base="labtainer.base2"
+ENV APT_SOURCE $apt_source
+RUN /usr/bin/apt-source.sh || true
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends python3 python3-pip ffmpeg vim nano coreutils sudo && rm -rf /var/lib/apt/lists/*
+RUN python3 -m pip install --no-cache-dir "numpy<1.20" "scikit-image<0.18" || python3 -m pip install --no-cache-dir "numpy<1.20"
+ADD $labdir/$imagedir/sys_tar/sys.tar /
+ADD $labdir/sys_$lab.tar.gz /
+RUN useradd -ms /bin/bash $user_name
+RUN echo "$user_name:$password" | chpasswd
+RUN adduser $user_name sudo
+RUN mkdir -p /home/$user_name/.local/bin /home/$user_name/.local/result /home/$user_name/shared && if [ ! -e /shared ]; then ln -s /home/$user_name/shared /shared; fi && chown -R $user_name:$user_name /home/$user_name/.local /home/$user_name/shared
+USER $user_name
+ENV HOME /home/$user_name
+ADD $labdir/$imagedir/home_tar/home.tar $HOME
+RUN rm -f $HOME/home.tar
+ADD $labdir/$lab.tar.gz $HOME
+USER root
+CMD ["/bin/bash", "-c", "sleep infinity"]

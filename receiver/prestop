@@ -1,0 +1,9 @@
+#!/bin/bash
+cd "$HOME" || exit 0
+rm -rf tmp_frames raw_frames decoded .cache
+rm -f *.yuv *.raw cover.ivf stego.ivf logonly.ivf
+rm -f /shared/cover.ivf /shared/stego.ivf /shared/logonly.ivf /shared/cover.y4m 2>/dev/null || true
+mkdir -p .local/result
+for f in verify_report.json; do
+    if [ -s "$f" ]; then cp "$f" ".local/result/$f"; fi
+done

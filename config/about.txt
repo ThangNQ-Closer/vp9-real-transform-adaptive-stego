@@ -1,0 +1,5 @@
+The lab manual is at
+file:///home/student/labtainer/trunk/labs/vp9-real-transform-adaptive-stego/docs/vp9-real-transform-adaptive-stego.pdf
+
+You may open these by right clicking
+and select "Open Link".

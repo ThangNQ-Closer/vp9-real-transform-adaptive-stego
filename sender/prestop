@@ -1,0 +1,10 @@
+#!/bin/bash
+cd "$HOME" || exit 0
+mkdir -p .local/result
+for f in embed_log.json coeff_log.json; do
+    if [ -s "$f" ]; then cp "$f" ".local/result/$f"; fi
+done
+rm -rf libvpx cover.y4m decoded raw_frames tmp_frames .cache video_view
+rm -f input_video.mp4 cover.ivf stego.ivf logonly.ivf *.yuv *.raw
+rm -f shared/cover.ivf shared/stego.ivf shared/logonly.ivf shared/cover.y4m shared/input_video.mp4 shared/input_video_preview.mp4 shared/input_video_preview.jpg shared/view_input_video.html shared/embed_log.json shared/coeff_log.json shared/verify_report.json 2>/dev/null || true
+rm -f /shared/cover.ivf /shared/stego.ivf /shared/logonly.ivf /shared/cover.y4m /shared/input_video.mp4 /shared/input_video_preview.mp4 /shared/input_video_preview.jpg /shared/view_input_video.html /shared/embed_log.json /shared/coeff_log.json /shared/verify_report.json 2>/dev/null || true
