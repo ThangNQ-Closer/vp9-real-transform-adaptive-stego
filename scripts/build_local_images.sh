@@ -2,6 +2,17 @@
 set -euo pipefail
 LAB="vp9-real-transform-adaptive-stego"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+BASE_IMAGE="labtainers/labtainer.base2"
+BASE_ID="$(docker images -f=reference="${BASE_IMAGE}:latest" -q | head -1)"
+if [ -z "$BASE_ID" ]; then
+  docker pull "$BASE_IMAGE"
+  BASE_ID="$(docker images -f=reference="${BASE_IMAGE}:latest" -q | head -1)"
+fi
+if [ -z "$BASE_ID" ]; then
+  echo "Could not determine Docker image id for $BASE_IMAGE" >&2
+  exit 1
+fi
+BASE_LABEL="${BASE_IMAGE}.${BASE_ID}"
 make_role_tar() {
   local role="$1"
   local work
@@ -37,10 +48,10 @@ make_role_tar sender
 make_role_tar receiver
 (
   cd "$ROOT/sender"
-  docker build --build-arg registry=labtainers --build-arg lab=${LAB}.sender.student --build-arg labdir=. --build-arg imagedir=. --build-arg user_name=student --build-arg password=student --build-arg apt_source=archive.ubuntu.com --build-arg version=3 --build-arg base=labtainers/labtainer.base2 -t ${LAB}.sender.student:latest -f "$ROOT/dockerfiles/Dockerfile.${LAB}.sender.student" .
+  docker build --build-arg registry=labtainers --build-arg lab=${LAB}.sender.student --build-arg labdir=. --build-arg imagedir=. --build-arg user_name=student --build-arg password=student --build-arg apt_source=archive.ubuntu.com --build-arg version=3 --build-arg base="$BASE_LABEL" -t ${LAB}.sender.student:latest -f "$ROOT/dockerfiles/Dockerfile.${LAB}.sender.student" .
 )
 (
   cd "$ROOT/receiver"
-  docker build --build-arg registry=labtainers --build-arg lab=${LAB}.receiver.student --build-arg labdir=. --build-arg imagedir=. --build-arg user_name=student --build-arg password=student --build-arg apt_source=archive.ubuntu.com --build-arg version=3 --build-arg base=labtainers/labtainer.base2 -t ${LAB}.receiver.student:latest -f "$ROOT/dockerfiles/Dockerfile.${LAB}.receiver.student" .
+  docker build --build-arg registry=labtainers --build-arg lab=${LAB}.receiver.student --build-arg labdir=. --build-arg imagedir=. --build-arg user_name=student --build-arg password=student --build-arg apt_source=archive.ubuntu.com --build-arg version=3 --build-arg base="$BASE_LABEL" -t ${LAB}.receiver.student:latest -f "$ROOT/dockerfiles/Dockerfile.${LAB}.receiver.student" .
 )
 echo "Built local Labtainer images."

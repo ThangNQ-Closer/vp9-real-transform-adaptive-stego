@@ -130,3 +130,18 @@ Prebuilt images are published as:
 closer031004/vp9-real-transform-adaptive-stego:sender-student
 closer031004/vp9-real-transform-adaptive-stego:receiver-student
 ```
+
+
+## Fix: `pull access denied for labtainers/labtainer`
+
+If Labtainer repeatedly asks to download `labtainers/labtainer` and fails, remove any old cached VP9 images and pull the republished images:
+
+```bash
+docker rmi closer031004/vp9-real-transform-adaptive-stego.sender.student:latest 2>/dev/null || true
+docker rmi closer031004/vp9-real-transform-adaptive-stego.receiver.student:latest 2>/dev/null || true
+docker pull closer031004/vp9-real-transform-adaptive-stego.sender.student:latest
+docker pull closer031004/vp9-real-transform-adaptive-stego.receiver.student:latest
+labtainer vp9-real-transform-adaptive-stego
+```
+
+This error was caused by an old Docker label that made Labtainer parse the base image as `labtainers/labtainer` instead of `labtainers/labtainer.base2`.
