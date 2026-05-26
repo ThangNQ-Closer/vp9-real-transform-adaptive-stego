@@ -48,6 +48,8 @@ ensure_cover_y4m
 enc="$(ensure_vpxenc)"
 VP9_STEGO_MODE=off "$enc" --codec=vp9 --ivf --good --cpu-used=4 --threads=1 -o cover.ivf cover.y4m
 test -s cover.ivf
-mkdir -p /shared 2>/dev/null || true
+share_dir="$HOME/shared"
+mkdir -p "$share_dir" /shared 2>/dev/null || true
+cp cover.ivf "$share_dir"/
 cp cover.ivf /shared/ 2>/dev/null || true
 echo "wrote cover.ivf"

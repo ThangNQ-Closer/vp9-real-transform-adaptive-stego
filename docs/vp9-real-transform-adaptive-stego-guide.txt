@@ -33,8 +33,8 @@ Task 8: Inspect the embed log:
   python3 inspect_embed_log.py --input embed_log.json
 
 Task 9: In receiver, inspect and verify the bitstreams:
-  python3 inspect_video.py /shared/stego.ivf
-  python3 verify_stego.py --cover /shared/cover.ivf --stego /shared/stego.ivf --embed-log /shared/embed_log.json --output verify_report.json
+  python3 inspect_video.py ~~/shared/stego.ivf
+  python3 verify_stego.py --cover ~~/shared/cover.ivf --stego ~~/shared/stego.ivf --embed-log ~~/shared/embed_log.json --output verify_report.json
   python3 extract_metrics.py --report verify_report.json
 
 Task 10: Run checkwork.

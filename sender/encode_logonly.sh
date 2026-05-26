@@ -52,6 +52,8 @@ if [ ! -s coeff_log.json ]; then
     echo "coeff_log.json was not created. Run: python3 patch_libvpx.py && ./build_libvpx.sh" >&2
     exit 1
 fi
-mkdir -p /shared 2>/dev/null || true
+share_dir="$HOME/shared"
+mkdir -p "$share_dir" /shared 2>/dev/null || true
+cp coeff_log.json "$share_dir"/
 cp coeff_log.json /shared/ 2>/dev/null || true
 echo "wrote logonly.ivf and coeff_log.json"
