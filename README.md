@@ -145,3 +145,29 @@ labtainer vp9-real-transform-adaptive-stego
 ```
 
 This error was caused by an old Docker label that made Labtainer parse the base image as `labtainers/labtainer` instead of `labtainers/labtainer.base2`.
+
+## Common Mistakes During The Lab
+
+Do not execute C source files directly. For example, this is wrong:
+
+```bash
+libvpx/vp9/encoder/vp9_tokenize.c
+```
+
+Use `nano`, `sed`, or `grep` to inspect the patched source instead:
+
+```bash
+grep -n "VP9_STEGO_PATCH_BEGIN" libvpx/vp9/encoder/vp9_tokenize.c
+sed -n '1,80p' libvpx/vp9/encoder/vp9_tokenize.c
+```
+
+Run `checkwork` only after finishing the sender and receiver workflows. Running `stoplab` before the workflow finishes removes large working files such as `libvpx`, `cover.y4m`, and VP9 video outputs from the container home directory.
+
+If a previous clone/build was interrupted, recover in the sender container with:
+
+```bash
+rm -rf libvpx
+./build_libvpx.sh
+```
+
+The DockerHub sender image now includes a prebuilt `libvpx` source tree, so normal runs should not need to clone libvpx from the internet inside the lab container.
